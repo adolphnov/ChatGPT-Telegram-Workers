@@ -1,10 +1,8 @@
 {
-    "name": "chatgpt",
     "builds": [
         { "src": "src/**", "use": "@vercel/node" }
     ],
     "routes": [
-      { "src": "/(.*)", "dest": "/src" }
-    ],
-    "regions": ["iad1"]
-  }
+        { "src": "/(.*)", "dest": "/src" }
+    ]
+}

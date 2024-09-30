@@ -1,0 +1,11 @@
+name: gpt-worker
+services:
+  gptworker:
+    build: .
+    image: adolphnov/gptworker:latest
+    platform: linux/arm64
+    ports:
+      - "8787:8787"
+    volumes:
+      - ./config:/app/config
+    restart: unless-stopped

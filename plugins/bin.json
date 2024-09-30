@@ -1,0 +1,16 @@
+{
+  "url": "https://lookup.binlist.net/{{DATA}}",
+  "method": "GET",
+  "response": {
+    "content": {
+      "input_type": "json",
+      "output_type": "MarkdownV2",
+      "output": "**卡BIN信息如下**\n卡品牌: {{scheme}}\n卡类型: {{type}}\n卡种类: {{brand}}\n发卡行: {{bank.name}}\n是否预付: {{#if prepaid}}是{{#else}}否{{/if}}\n发卡国家: {{country.emoji}}{{country.name}}\n币种: {{country.currency}}"
+    },
+    "error": {
+      "input_type": "text",
+      "output_type": "text",
+      "output": "Error: {{.}}"
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "url": "https://60s.viki.moe/?v2=1",
+  "method": "GET",
+  "response": {
+    "content": {
+      "input_type": "json",
+      "output_type": "MarkdownV2",
+      "output": "**每日60s看世界**\n{{#each news in data.news}}\n- {{.}}\n{{/each}}\n> {{data.tip}}\n\n\n[Data Source]({{data.url}}) | [cover]({{data.cover}})\n\nUpdateTime: {{data.updated}}"
+    },
+    "error": {
+      "input_type": "json",
+      "output_type": "text",
+      "output": "Error: {{message}}"
+    }
+  }
+}

@@ -1,33 +1,40 @@
 {
   "name": "chatgpt-telegram-workers",
-  "version": "1.5.1",
-  "description": "最简单快捷部署属于自己的ChatGPT Telegram机器人的方法，单文件，直接复制粘贴一把梭，无需任何依赖，无需配置本地开发环境，不用域名，免服务器。",
-  "main": "main.js",
   "type": "module",
-  "scripts": {
-    "lint": "make lint",
-    "build": "make build",
-    "debug": "wrangler dev --local",
-    "wrangler": "wrangler",
-    "deploy:dist": "wrangler deploy",
-    "deploy:build": "npm run build && wrangler deploy"
-  },
-  "devDependencies": {
-    "esbuild": "^0.17.11",
-    "eslint": ">=5.16.0",
-    "eslint-config-google": "^0.14.0",
-    "wrangler": "^3.0.0"
-  },
-  "exports": {
-    "import": "./main.js"
-  },
-  "files": [
-    "main.js",
-    "src/**/*",
-    "package.json",
-    "package-lock.json"
-  ],
+  "version": "1.9.3",
+  "description": "The easiest and quickest way to deploy your own ChatGPT Telegram bot is to use a single file and simply copy and paste it. There is no need for any dependencies, local development environment configuration, domain names, or servers.",
   "author": "TBXark",
   "license": "MIT",
-  "dependencies": {}
+  "repository": "git@github.com:TBXark/ChatGPT-Telegram-Workers.git",
+  "exports": {
+    ".": "./main.js",
+    "./task": "./src/tools/scheduleTasks.js"
+  },
+  "module": "dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "lint": "eslint --fix *.js *.json src adapter",
+    "build": "vite build",
+    "build:local": "BUILD_MODE=local vite build",
+    "wrangler": "wrangler",
+    "deploy:dist": "wrangler deploy",
+    "deploy:build": "npm run build && wrangler deploy",
+    "start:dist": "node dist/index.js",
+    "start:local": "node adapter/local/index.js"
+  },
+  "dependencies": {
+    "cloudflare-worker-adapter": "^1.3.3"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^2.25.1",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "eslint": "^9.8.0",
+    "eslint-plugin-format": "^0.1.2",
+    "rollup-plugin-cleanup": "^3.2.1",
+    "typescript": "^5.5.4",
+    "vite": "^5.2.10",
+    "wrangler": "^3.69.1"
+  }
 }
