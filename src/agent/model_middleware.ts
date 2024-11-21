@@ -1,6 +1,5 @@
 /* eslint-disable unused-imports/no-unused-vars */
 import type {
-    CoreToolChoice,
     LanguageModelV1,
     LanguageModelV1CallOptions,
     Experimental_LanguageModelV1Middleware as LanguageModelV1Middleware,
@@ -12,7 +11,6 @@ import type { ChatStreamTextHandler } from './types';
 import { createLlmModel } from '.';
 import { getLogSingleton } from '../log/logDecortor';
 import { log } from '../log/logger';
-import { OpenAI } from './openai';
 
 type Writeable<T> = { -readonly [P in keyof T]: T[P] };
 
@@ -49,12 +47,9 @@ export function AIMiddleware({ config, tools, activeTools, onStream, toolChoice,
             if (toolChoice.length > 0 && step < toolChoice.length && params.mode.type === 'regular') {
                 params.mode.toolChoice = toolChoice[step] as any;
                 log.info(`toolChoice changed: ${JSON.stringify(toolChoice[step])}`);
-                // Unable to filter through activeTools, can only compromise by using tools.
-                // Filter out used tools to prevent calling the same tool.
                 params.mode.tools = params.mode.tools?.filter(i => activeTools.includes(i.name));
             }
             warpMessages(params, tools, activeTools, rawSystemPrompt);
-            // log.info(`request params: ${JSON.stringify(params, null, 2)}`);
             return params;
         },
 
@@ -111,7 +106,6 @@ export function AIMiddleware({ config, tools, activeTools, onStream, toolChoice,
             logs.ongoingFunctions = logs.ongoingFunctions.filter(i => i.startTime !== startTime);
             sendToolCall = false;
             step++;
-            // onStream?.send(`${messageReferencer.join('')}...\n` + `step ${step} finished`);
         },
     };
 }
@@ -161,8 +155,6 @@ function trimActiveTools(activeTools: string[], toolNames: string[]) {
 
 function recordModelLog(config: AgentUserConfig, model: LanguageModelV1, activeTools: string[], toolChoice: ToolChoice) {
     const logs = getLogSingleton(config);
-    // const openaiTransformModelRegex = new RegExp(`^${OpenAI.transformModelPerfix}`);
-    // const modelId = model.provider.includes('openai') ? model.modelId.replace(openaiTransformModelRegex, '') : model.modelId;
     log.info(`provider: ${model.provider}, modelId: ${model.modelId} `);
     if (activeTools.length > 0 && toolChoice?.type !== 'none') {
         logs.tool.model = model.modelId;

@@ -1,5 +1,4 @@
 import type * as Telegram from 'telegram-bot-api-types';
-import type { ShareContext } from '../../config/context';
 import { ENV } from '../../config/env';
 import { findPhotoFileID } from '../handler/chat';
 

@@ -25,14 +25,15 @@ const packageJson = `
     "start": "node index.js"
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^1.0.0",
-    "@ai-sdk/azure": "^1.0.2",
-    "@ai-sdk/cohere": "^1.0.0",
-    "@ai-sdk/google": "^1.0.0",
-    "@ai-sdk/google-vertex": "^1.0.0",
-    "@ai-sdk/mistral": "^1.0.1",
-    "@ai-sdk/openai": "^1.0.1",
-    "ai": "^4.0.1",
+    "@ai-sdk/anthropic": "^1.0.1",
+    "@ai-sdk/azure": "^1.0.3",
+    "@ai-sdk/cohere": "^1.0.1",
+    "@ai-sdk/google": "^1.0.1",
+    "@ai-sdk/google-vertex": "^1.0.1",
+    "@ai-sdk/mistral": "^1.0.2",
+    "@ai-sdk/openai": "^1.0.2",
+    "@ai-sdk/xai": "^1.0.2",
+    "ai": "^4.0.2",
     "cloudflare-worker-adapter": "^1.3.4",
     "node-cron": "^3.0.3",
     "ws": "^8.18.0"

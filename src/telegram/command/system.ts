@@ -5,20 +5,21 @@ import type * as Telegram from 'telegram-bot-api-types';
 import type { HistoryItem } from '../../agent/types';
 import type { WorkerContext } from '../../config/context';
 import type { AgentUserConfig } from '../../config/env';
+import type { MessageSender } from '../utils/send';
 import type { UnionData } from '../utils/utils';
 import type { CommandHandler, InlineItem, ScopeType } from './types';
 import { authChecker } from '.';
 import { CHAT_AGENTS, customInfo, IMAGE_AGENTS, loadChatLLM, loadImageGen } from '../../agent';
-import { WssRequest } from '../../agent/wsrequest';
 import { ENV, ENV_KEY_MAPPER } from '../../config/env';
 import { ConfigMerger } from '../../config/merger';
 import { getLogSingleton } from '../../log/logDecortor';
 import { log } from '../../log/logger';
 import { tools } from '../../tools';
+import { WssRequest } from '../../utils/others/wsrequest';
 import { createTelegramBotAPI } from '../api';
 import { chatWithLLM, OnStreamHander, sendImages } from '../handler/chat';
 import { escape } from '../utils/md2tgmd';
-import { type MessageSender, sendAction } from '../utils/send';
+import { sendAction } from '../utils/send';
 import { chunckArray, isCfWorker, isTelegramChatTypeGroup, UUIDv4 } from '../utils/utils';
 
 export const COMMAND_AUTH_CHECKER = {
@@ -100,7 +101,7 @@ class BaseNewCommandHandler {
         const text = ENV.I18N.command.new.new_chat_start + (showID ? `(${message.chat.id})` : '');
         const params: Telegram.SendMessageParams = {
             chat_id: message.chat.id,
-            message_thread_id: message.message_thread_id || undefined,
+            message_thread_id: (message.is_topic_message && message.message_thread_id) || undefined,
             text,
         };
         if (ENV.SHOW_REPLY_BUTTON && !isTelegramChatTypeGroup(message.chat.type)) {

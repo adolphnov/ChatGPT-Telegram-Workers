@@ -23,9 +23,6 @@ async function messageInitialize(sender: MessageSender, streamSender: ChatStream
     if (!sender.context.message_id) {
         try {
             setTimeout(() => sendAction(sender.api.token, sender.context.chat_id, 'typing'), 0);
-            // if (!ENV.SEND_INIT_MESSAGE) {
-            //     return;
-            // }
             log.info(`send init message`);
             streamSender.send('...', 'chat');
         } catch (e) {
@@ -190,6 +187,7 @@ export function OnStreamHander(sender: MessageSender | ChosenInlineSender, conte
 
             const data = context ? `${getLog(context.USER_CONFIG)}\n${text}` : text;
             log.info(`sent message ids: ${isMessageSender ? [...sender.context.sentMessageIds] : sender.context.inline_message_id}`);
+            isMessageSender && sendAction(sender.api.token, sender.context.chat_id, 'typing');
             sentPromise = sender.sendRichText(data, sentError ? undefined : ENV.DEFAULT_PARSE_MODE as Telegram.ParseMode, 'chat');
             const resp = await sentPromise;
             // 判断429
@@ -223,6 +221,7 @@ export function OnStreamHander(sender: MessageSender | ChosenInlineSender, conte
         }
         const data = context ? `${getLog(context.USER_CONFIG)}\n${text}` : text;
         log.info(`sent message ids: ${isMessageSender ? [...sender.context.sentMessageIds] : sender.context.inline_message_id}`);
+        isMessageSender && sendAction(sender.api.token, sender.context.chat_id, 'typing');
         while (true) {
             const finalResp = await (sentError ? sender.sendPlainText(data) : sender.sendRichText(data));
             if (finalResp.status === 429) {
@@ -256,7 +255,7 @@ async function sendTelegraph(context: WorkerContext, sender: MessageSender | Cho
     log.info(getLog(context.USER_CONFIG));
 
     const telegraph_prefix = `${prefix}\n#Answer\n🤖 **${getLog(context.USER_CONFIG, true, false)}**\n`;
-    const debug_info = `debug info:\n${getLog(context.USER_CONFIG, true, false) as string}`;
+    const debug_info = `debug info:\n${getLog(context.USER_CONFIG, false, false) as string}`;
     const telegraph_suffix = `\n---\n\`\`\`\n${debug_info}\n\`\`\``;
     const telegraphSender = new TelegraphSender(botName, context.SHARE_CONTEXT.telegraphAccessTokenKey!);
     const resp = await telegraphSender.send(

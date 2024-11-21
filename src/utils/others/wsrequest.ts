@@ -1,6 +1,6 @@
-import { log } from '../log/logger';
+import { streamHandler } from '../../agent/request';
+import { log } from '../../log/logger';
 import { AsyncIter } from './readable';
-import { streamHandler } from './request';
 
 const perplexityExtractor = {
     contentExtractor: (data: any): string => {

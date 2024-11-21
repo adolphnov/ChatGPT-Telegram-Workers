@@ -3,7 +3,7 @@ import type { ToolCallPart, ToolResultPart } from 'ai';
 import type { ResponseMessage } from '../agent/types';
 import type { AgentUserConfig } from '../config/env';
 import type { MessageSender } from '../telegram/utils/send';
-/* eslint-disable no-eval */
+
 import type { FuncTool, ToolResult } from './types';
 import { jsonSchema, tool } from 'ai';
 import { ENV } from '../config/env';

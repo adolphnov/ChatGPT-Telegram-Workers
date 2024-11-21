@@ -1,5 +1,5 @@
 /* eslint-disable no-case-declarations */
-import type { CoreMessage, CoreToolChoice, CoreUserMessage, LanguageModelV1 } from 'ai';
+import type { CoreMessage, CoreUserMessage, LanguageModelV1 } from 'ai';
 import type { AudioAgent, ChatAgent, ImageAgent } from './types';
 import { createAnthropic } from '@ai-sdk/anthropic';
 import { createCohere } from '@ai-sdk/cohere';

@@ -36,7 +36,7 @@ class MessageContext implements Record<string, any> {
             }
 
             this.allow_sending_without_reply = true;
-            if (message.message_thread_id && message.is_topic_message) {
+            if (message.is_topic_message && message.message_thread_id) {
                 this.message_thread_id = message.message_thread_id;
             }
         } else {

@@ -1,4 +1,4 @@
-import type { FlowStruct, LogLevelType } from './types';
+import type { LogLevelType } from './types';
 import prompts_default from '../extra/prompt';
 // -- 只能通过环境变量覆盖的配置 --
 export class EnvironmentConfig {
@@ -42,6 +42,8 @@ export class EnvironmentConfig {
         'AZURE_COMPLETIONS_API',
         'AZURE_DALLE_API',
         'GOOGLEAI_STUDIO_API_BASE',
+        'OPENAILIKE_API_BASE',
+        'XAI_API_BASE',
     ];
 
     // -- 群组相关 --
@@ -132,28 +134,18 @@ export class EnvironmentConfig {
     // Log level
     LOG_LEVEL: LogLevelType = 'info';
 
-    // The model is not fully compatible with the openai function call setting parameter to false, by default it is not fully compatible.
-    // When the model name does not contain "gpt" and this parameter is set to false: remove data with empty content (when calling gpt function, content is empty), remove tool_choice and tool_calls parameters.
-    // At the same time, replace role = tool data with role = user, and replace content with name + result.
-    // This parameter only takes effect when chat agent is openai.
-    MODEL_COMPATIBLE_OPENAI = false;
-
     // -------------
 
     // -- 模式开关 --
     //
     // 使用流模式
     STREAM_MODE = true;
-    // 安全模式
+    // 安全模式 异步模式（polling, 异步webhook）下可关闭
     SAFE_MODE = true;
     // 调试模式
     DEBUG_MODE = false;
     // 开发模式
     DEV_MODE = false;
-    /**
-     * @deprecated 是否发送初始化消息
-     */
-    SEND_INIT_MESSAGE = true;
 
     QSTASH_URL = 'https://qstash.upstash.io';
     // qstash token
@@ -253,7 +245,7 @@ export class GeminiConfig {
     // Google Gemini API: Cloudflare AI gateway: https://gateway.ai.cloudflare.com/v1/{account_id}/{gateway_name}/google-ai-studio/v1/models
     GOOGLE_API_BASE = 'https://generativelanguage.googleapis.com/v1beta';
     // Google Gemini Model
-    GOOGLE_CHAT_MODEL = 'gemini-1.5-flash-latest';
+    GOOGLE_CHAT_MODEL = 'gemini-1.5-flash-002';
 }
 
 // -- Mistral 配置 --
@@ -314,6 +306,16 @@ export class VertexConfig {
     VERTEX_SEARCH_GROUNDING = false;
 }
 
+export class XAIConfig {
+    // XAI api key
+    XAI_API_KEY: string | null = null;
+    // XAI api base
+    XAI_API_BASE = 'https://api.xai.com/v1';
+    // XAI api model
+    XAI_CHAT_MODEL = 'grok-beta';
+    XAI_VISION_MODEL = 'grok-vision-beta';
+}
+
 export class DefineKeys {
     DEFINE_KEYS: string[] = [];
 }
@@ -330,37 +332,12 @@ export class ExtraUserConfig {
     // Function to use, currently has duckduckgo and jina_reader
     // '["duckduckgo", "jina_reader"]'
     USE_TOOLS: string[] = ['duckduckgo', 'jina_reader'];
-    JINA_API_KEY = [];
+    JINA_API_KEY: string[] = [];
     // if starts with '{agent}:' perfix, the specified agent corresponds to the chat model,
     // otherwise use the current agent and the specified model.
     // Keep empty to use the current agent chat model as function call model.
     TOOL_MODEL = '';
-
-    /**
-     * @deprecated in this version, it is no longer supported
-     */
-    FUNCTION_REPLY_ASAP = true;
     PROMPT: Record<string, string> = prompts_default;
-    MODES: Record<string, FlowStruct> = {
-        default: { text: {}, image: {}, audio: { workflow: [{ type: 'text' }, {}] } },
-        dalle: {
-            text: {
-                disableHistory: true,
-                disableTool: true,
-                workflow: [{ agent: 'openai', model: 'gpt-4o-2024-08-06', prompt: 'dalle' }, { type: 'image' }],
-            },
-        },
-        pk: {
-            text: {
-                // isParallel: true,
-                disableHistory: false,
-                disableTool: false,
-                workflow: [{ model: 'gpt-4o-2024-08-06' }, { model: 'chatgpt-4o-latest' }],
-            },
-        },
-    };
-
-    CURRENT_MODE = 'default';
 
     // INLINE_AGENTS
     // INLINE_AGENTS = ['openai', 'claude', 'google', 'vertex', 'cohere', 'workersai'];

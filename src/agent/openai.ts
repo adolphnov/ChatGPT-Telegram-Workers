@@ -9,13 +9,9 @@ import { log } from '../log/logger';
 import { requestText2Image } from './chat';
 import { requestChatCompletionsV2 } from './request';
 
-class OpenAIBase {
+export class OpenAIBase {
     readonly name = 'openai';
-    type = 'chat';
     apikey = (context: AgentUserConfig): string => {
-        if (this.type === 'tool' && context.FUNCTION_CALL_API_KEY) {
-            return context.FUNCTION_CALL_API_KEY;
-        }
         const length = context.OPENAI_API_KEY.length;
         return context.OPENAI_API_KEY[Math.floor(Math.random() * length)];
     };
@@ -33,30 +29,13 @@ export class OpenAI extends OpenAIBase implements ChatAgent {
         return Array.isArray(params?.content) ? ctx.OPENAI_VISION_MODEL : ctx.OPENAI_CHAT_MODEL;
     };
 
-    // readonly transformModel = (model: string, context: AgentUserConfig): string => {
-    //     if (context.OPENAI_NEED_TRANSFORM_MODEL.includes(model)) {
-    //         return `${OpenAI.transformModelPerfix}${model}`;
-    //     }
-    //     return model;
-    // };
-
-    // 仅文本对话使用该地址
-    readonly base_url = (context: AgentUserConfig): string => {
-        if (this.type === 'tool' && context.FUNCTION_CALL_BASE) {
-            return context.FUNCTION_CALL_BASE;
-        }
-        return context.OPENAI_API_BASE;
-    };
-
     readonly request = async (params: LLMChatParams, context: AgentUserConfig, onStream: ChatStreamTextHandler | null): Promise<{ messages: ResponseMessage[]; content: string }> => {
         const userMessage = params.messages.at(-1) as CoreUserMessage;
         const originalModel = this.model(context, userMessage);
-        // const transformedModel = this.transformModel(originalModel, context);
         const provider = createOpenAI({
             baseURL: context.OPENAI_API_BASE,
             apiKey: this.apikey(context),
             compatibility: 'strict',
-            // fetch: originalModel === transformedModel ? undefined : this.fetch,
         });
 
         const languageModelV1 = provider.languageModel(originalModel, undefined);

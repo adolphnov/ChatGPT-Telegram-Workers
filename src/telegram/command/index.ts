@@ -4,6 +4,7 @@ import type { RequestTemplate } from '../../plugins/template';
 import type { UnionData } from '../utils/utils';
 import type { CommandHandler } from './types';
 import { ENV } from '../../config/env';
+import { log } from '../../log/logger';
 import { executeRequest, formatInput } from '../../plugins/template';
 import { MessageSender, sendAction } from '../utils/send';
 import { loadChatRoleWithContext } from './auth';
@@ -25,7 +26,6 @@ import {
     SystemCommandHandler,
     VersionCommandHandler,
 } from './system';
-import { log } from '../../log/logger';
 
 const SYSTEM_COMMANDS: CommandHandler[] = [
     new StartCommandHandler(),

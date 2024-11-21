@@ -1,4 +1,4 @@
-import type { CoreMessage, CoreToolChoice, LanguageModelV1, StepResult } from 'ai';
+import type { CoreMessage, LanguageModelV1, StepResult } from 'ai';
 import type { ToolChoice } from '.';
 import type { AgentUserConfig } from '../config/env';
 import type { ChatStreamTextHandler, OpenAIFuncCallData, ResponseMessage } from './types';

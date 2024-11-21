@@ -2,15 +2,6 @@ import type { WorkerContext } from '../config/context';
 import type { ChatAgent, ChatStreamTextHandler, HistoryItem, HistoryModifier, ImageResult, LLMChatParams, LLMChatRequestParams, ResponseMessage } from './types';
 import { ENV } from '../config/env';
 
-/**
- * @returns {(function(string): number)}
- */
-function tokensCounter(): (text: string) => number {
-    return (text) => {
-        return text.length;
-    };
-}
-
 export async function loadHistory(key: string): Promise<HistoryItem[]> {
     // 加载历史记录
     let history = [];
