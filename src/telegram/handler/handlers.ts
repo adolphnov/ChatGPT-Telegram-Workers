@@ -8,6 +8,7 @@ import { WorkerContext } from '../../config/context';
 import { ENV } from '../../config/env';
 import { tagMessageIds } from '../../log/logDecortor';
 import { log } from '../../log/logger';
+import { Rerank } from '../../utils/data_calculation/rerank';
 import { createTelegramBotAPI } from '../api';
 import { handleCommandMessage } from '../command';
 import { loadChatRoleWithContext } from '../command/auth';
@@ -424,6 +425,33 @@ export class CheckForwarding implements MessageHandler<WorkerContext> {
                         message,
                     }),
                 });
+            }
+        }
+        return null;
+    };
+}
+
+export class IntelligentModelProcess implements MessageHandler<WorkerContext> {
+    handle = async (message: Telegram.Message, context: WorkerContext): Promise<Response | null> => {
+        if (!context.USER_CONFIG.ENABLE_INTELLIGENT_MODEL) {
+            return null;
+        }
+        const regex = /^\s*\/\/(c|v)\s*(\S+)/;
+        const text = (message.text || message.caption || '').trim().match(regex);
+        if (text && text[1] && text[2]) {
+            const rerank = new Rerank();
+            try {
+                const similarityModel = (await rerank.rank(context.USER_CONFIG, [text[2], ...context.USER_CONFIG.RERANK_MODELS], 1))[0].name;
+                const mode = text[1];
+                const textReplace = `/set ${mode === 'c' ? '-CHAT_MODEL' : `-VISION_MODEL`} ${similarityModel} `;
+                if (message.text) {
+                    message.text = textReplace + message.text.slice(text[0].length).trim();
+                } else if (message.caption) {
+                    message.caption = textReplace + message.caption.slice(text[0].length).trim();
+                }
+            } catch (error) {
+                log.error(`[INTELLIGENT MODEL PROCESS] Rerank error: ${error}`);
+                return null;
             }
         }
         return null;

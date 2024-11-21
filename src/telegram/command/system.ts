@@ -377,7 +377,7 @@ export class SetCommandHandler implements CommandHandler {
         try {
             if (!subcommand) {
                 const detailSet = ENV.I18N.command?.detail?.set || 'Have no detailed information in the language';
-                return sender.sendRichText(`\`\`\`plaintext\n${detailSet}\n\`\`\``, 'MarkdownV2');
+                return sender.sendRichText(`<pre>${detailSet}</pre>`, 'HTML');
             }
 
             const { keys, values } = this.parseMappings(context);
@@ -477,7 +477,7 @@ export class SetCommandHandler implements CommandHandler {
         context: WorkerContext,
         sender: MessageSender,
     ): Promise<string | Response> {
-        let key = keys[flag];
+        let key = keys[flag] || (Object.values(keys).includes(flag.slice(1)) ? flag.slice(1) : null);
         let mappedValue = values[value] ?? value;
 
         if (!key) {
@@ -499,11 +499,11 @@ export class SetCommandHandler implements CommandHandler {
                     ? `${context.USER_CONFIG.AI_PROVIDER.toUpperCase()}_${key}`
                     : key;
                 break;
-            case 'CURRENT_MODE':
-                if (!Object.keys(context.USER_CONFIG.MODES).includes(value)) {
-                    return sender.sendPlainText(`mode ${value} not found. Support modes: ${Object.keys(context.USER_CONFIG.MODES).join(', ')}`);
-                }
-                break;
+            // case 'CURRENT_MODE':
+            //     if (!Object.keys(context.USER_CONFIG.MODES).includes(value)) {
+            //         return sender.sendPlainText(`mode ${value} not found. Support modes: ${Object.keys(context.USER_CONFIG.MODES).join(', ')}`);
+            //     }
+            //     break;
             case 'USE_TOOLS':
                 if (value === 'on') {
                     mappedValue = Object.keys(tools);

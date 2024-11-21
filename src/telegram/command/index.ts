@@ -153,7 +153,7 @@ export async function handleCommandMessage(message: Telegram.Message, context: W
     for (const cmd of SYSTEM_COMMANDS) {
         if (text === cmd.command || text.startsWith(`${cmd.command} `)) {
             log.info(`[SYSTEM COMMAND] handle system command: ${cmd.command}`);
-            return await handleSystemCommand(message, text, cmd, context);
+            return handleSystemCommand(message, text, cmd, context);
         }
     }
     return null;

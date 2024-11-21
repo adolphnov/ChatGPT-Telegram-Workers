@@ -14,6 +14,7 @@ import {
     HandlerCallbackQuery,
     HandlerInlineQuery,
     InitUserConfig,
+    IntelligentModelProcess,
     MessageFilter,
     OldMessageFilter,
     SaveLastMessage,
@@ -66,6 +67,8 @@ async function handleMessage(token: string, message: Telegram.Message, isForward
         new SaveLastMessage(),
         // 初始化用户配置
         new InitUserConfig(),
+        // 动态模型处理
+        new IntelligentModelProcess(),
         // 处理命令消息
         new CommandHandler(),
         // 检查是否是转发消息

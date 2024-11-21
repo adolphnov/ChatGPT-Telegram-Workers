@@ -1,9 +1,9 @@
+import type { CoreUserMessage } from 'ai';
 import type { AgentUserConfig } from '../config/env';
 import type { ChatAgent, ChatStreamTextHandler, LLMChatParams, LLMChatRequestParams, ResponseMessage } from './types';
 import { createXai } from '@ai-sdk/xai';
 import { warpLLMParams } from '.';
 import { requestChatCompletionsV2 } from './request';
-import { CoreUserMessage } from 'ai';
 
 export class XAI implements ChatAgent {
     readonly name = 'xai';

@@ -1,5 +1,5 @@
 /* eslint-disable unused-imports/no-unused-vars */
-import type { FilePart, ToolResultPart } from 'ai';
+import type { FilePart, TextPart, ToolResultPart } from 'ai';
 import type * as Telegram from 'telegram-bot-api-types';
 import type { ChatStreamTextHandler, HistoryModifier, ImageResult, LLMChatRequestParams } from '../../agent/types';
 import type { WorkerContext } from '../../config/context';
@@ -10,7 +10,7 @@ import type { MessageHandler } from './types';
 import { loadAudioLLM, loadChatLLM, loadImageGen } from '../../agent';
 import { loadHistory, requestCompletionsFromLLM } from '../../agent/chat';
 import { ENV } from '../../config/env';
-import { getLog, logSingleton } from '../../log/logDecortor';
+import { clearLog, getLog, logSingleton } from '../../log/logDecortor';
 import { log } from '../../log/logger';
 import { sendToolResult } from '../../tools';
 import { imageToBase64String, renderBase64DataURI } from '../../utils/image';
@@ -92,7 +92,7 @@ export class ChatHandler implements MessageHandler<WorkerContext> {
             console.error('Error:', e);
             const sender = context.MIDDEL_CONTEXT.sender ?? MessageSender.from(context.SHARE_CONTEXT.botToken, message);
             const filtered = (e as Error).message.replace(context.SHARE_CONTEXT.botToken, '[REDACTED]');
-            return sender.sendPlainText(`Error: ${filtered.substring(0, 4000)}`);
+            return sender.sendRichText(`<pre>Error:${filtered.substring(0, 4000)}</pre>`, 'HTML');
         }
     };
 
@@ -116,8 +116,6 @@ export class ChatHandler implements MessageHandler<WorkerContext> {
         };
 
         if (type !== 'text' && id) {
-            // const fileIds = await getStoreMediaIds(context.SHARE_CONTEXT, context.MIDDEL_CONTEXT.originalMessageInfo.media_group_id);
-            // id.push(...fileIds.filter(i => !id.includes(i)));
             const api = createTelegramBotAPI(context.SHARE_CONTEXT.botToken);
             const files = await Promise.all(id.map(i => api.getFileWithReturns({ file_id: i })));
             const paths = files.map(f => f.result.file_path).filter(Boolean) as string[];
@@ -340,11 +338,17 @@ async function handleAudioToText(
     if (!agent) {
         return sender.sendPlainText('ERROR: Audio agent not found');
     }
-    const url = (params.content as FilePart[])[0].data as string;
+    const url = (params.content as FilePart[]).at(-1)?.data as string;
     const audio = await fetch(url).then(b => b.blob());
     const result = await agent.request(audio, context.USER_CONFIG);
     context.MIDDEL_CONTEXT.history.push({ role: 'user', content: result.text || '' });
-    return sender.sendRichText(`${getLog(context.USER_CONFIG)}\n> \`${result.text}\``, 'MarkdownV2', 'chat');
+    await sender.sendRichText(`${getLog(context.USER_CONFIG, false, false)}\n> \n${result.text}`, 'MarkdownV2', 'chat');
+    if (ENV.AUDIO_HANDLE_TYPE === 'chat' && result.text) {
+        clearLog(context.USER_CONFIG);
+        const otherText = (params.content as TextPart[]).filter(c => c.type === 'text').map(c => c.text).join('\n').trim();
+        return chatWithLLM(message, { role: 'user', content: `[AUDIO]: ${result.text}\n${otherText}` }, context, null);
+    }
+    return new Response('audio handle done');
 }
 
 export async function sendImages(img: ImageResult, SEND_IMAGE_AS_FILE: boolean, sender: MessageSender, config: AgentUserConfig) {

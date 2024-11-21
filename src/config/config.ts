@@ -167,6 +167,8 @@ export class EnvironmentConfig {
     STORE_MEDIA_MESSAGE: boolean = false;
     // If true, will store text chunk when message separated to multiple chunks
     STORE_TEXT_CHUNK_MESSAGE: boolean = false;
+    // Audio handle type, 'transcribe' or 'chat'
+    AUDIO_HANDLE_TYPE = 'transcribe';
 }
 
 // -- 通用配置 --
@@ -200,6 +202,7 @@ export class OpenAIConfig {
      * @deprecated
      */
     OPENAI_NEED_TRANSFORM_MODEL: string[] = ['o1-mini-all', 'o1-mini-preview-all'];
+    OPENAI_EMBEDDING_MODEL = 'text-embedding-3-small';
 }
 
 // -- DALLE 配置 --
@@ -370,4 +373,12 @@ export class ExtraUserConfig {
     MAX_STEPS = 3;
     // chat agent max retries
     MAX_RETRIES = 0;
+    // Rerank Agent, jina or openai(calculate the cosine similarity using embedding models to get the result)
+    RERANK_AGENT = 'jina';
+    // Jina Rerank Model
+    JINA_RERANK_MODEL = 'jina-colbert-v2';
+    // Rerank Models
+    RERANK_MODELS: string[] = ['gpt-4o-mini', 'gpt-4o-2024-05-13', 'gpt-4o-2024-08-06', 'chatgpt-4o-latest', 'o1-mini', 'o1-preview', 'claude-3-5-sonnet-20240620', 'claude-3-5-sonnet-20241012', 'gemini-1.5-flash-002', 'gemini-1.5-pro-002', 'gemini-1.5-flash-latest', 'gemini-1.5-pro-latest', 'gemini-exp-1114', 'grok-beta', 'grok-vision-beta', 'claude-3-5-haiku-20241012'];
+    // Whether to enable intelligent model processing
+    ENABLE_INTELLIGENT_MODEL = false;
 }
