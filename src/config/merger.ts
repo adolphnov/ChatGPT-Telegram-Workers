@@ -38,7 +38,7 @@ export class ConfigMerger {
             if (!sourceKeys.has(key)) {
                 continue;
             }
-            if (exclude && exclude.includes(key)) {
+            if (exclude?.includes(key)) {
                 continue;
             }
             // 默认为字符串类型

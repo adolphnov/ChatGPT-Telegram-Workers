@@ -26,17 +26,18 @@ const packageJson = `
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^1.0.2",
-    "@ai-sdk/azure": "^1.0.5",
+    "@ai-sdk/azure": "^1.0.7",
     "@ai-sdk/cohere": "^1.0.3",
-    "@ai-sdk/google": "^1.0.3",
-    "@ai-sdk/google-vertex": "^1.0.3",
+    "@ai-sdk/google": "^1.0.4",
+    "@ai-sdk/google-vertex": "^1.0.4",
     "@ai-sdk/mistral": "^1.0.3",
-    "@ai-sdk/openai": "^1.0.4",
+    "@ai-sdk/openai": "^1.0.5",
     "@ai-sdk/xai": "^1.0.3",
-    "ai": "^4.0.3",
+    "ai": "^4.0.6",
+    "base64-stream": "^1.0.0",
     "cloudflare-worker-adapter": "^1.3.4",
-    "node-cron": "^3.0.3",
-    "ws": "^8.18.0"
+    "fluent-ffmpeg": "^2.1.3",
+    "node-cron": "^3.0.3"
   },
   "devDependencies": {}
 }

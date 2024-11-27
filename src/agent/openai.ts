@@ -25,7 +25,15 @@ export class OpenAI extends OpenAIBase implements ChatAgent {
     };
 
     readonly model = (ctx: AgentUserConfig, params?: LLMChatRequestParams): string => {
-        return Array.isArray(params?.content) ? ctx.OPENAI_VISION_MODEL : ctx.OPENAI_CHAT_MODEL;
+        const msgType = Array.isArray(params?.content) ? params.content.at(-1)?.type : 'text';
+        switch (msgType) {
+            case 'image':
+                return ctx.OPENAI_VISION_MODEL;
+            case 'file':
+                return 'gpt-4o-audio-preview';
+            default:
+                return ctx.OPENAI_CHAT_MODEL;
+        }
     };
 
     readonly request = async (params: LLMChatParams, context: AgentUserConfig, onStream: ChatStreamTextHandler | null): Promise<{ messages: ResponseMessage[]; content: string }> => {
@@ -35,6 +43,7 @@ export class OpenAI extends OpenAIBase implements ChatAgent {
             baseURL: context.OPENAI_API_BASE,
             apiKey: this.apikey(context),
             compatibility: 'strict',
+            // fetch: this.fetch,
         });
 
         const languageModelV1 = provider.languageModel(originalModel, undefined);
@@ -73,8 +82,12 @@ export class OpenAI extends OpenAIBase implements ChatAgent {
 
     readonly fetch = async (url: RequestInfo | URL, options?: RequestInit): Promise<Response> => {
         const body = JSON.parse(options?.body as string);
-        if (body?.model.startsWith(OpenAI.transformModelPerfix)) {
-            body.model = body.model.slice(OpenAI.transformModelPerfix.length);
+        // if (body?.model.startsWith(OpenAI.transformModelPerfix)) {
+        //     body.model = body.model.slice(OpenAI.transformModelPerfix.length);
+        // }
+        if (body.model === 'gpt-4o-audio-preview') {
+            body.modalities = ['text', 'audio'];
+            body.audio = { voice: 'alloy', format: 'opus' };
         }
         return fetch(url, {
             ...options,

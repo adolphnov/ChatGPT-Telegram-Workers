@@ -207,7 +207,7 @@ export async function requestChatCompletionsV2(params: { model: LanguageModelV1;
             activeTools: params.activeTools,
             onStepFinish: middleware.onStepFinish as (data: StepResult<any>) => void,
         };
-        if (onStream !== null) {
+        if (onStream !== null /* && params.model.modelId !== 'gpt-4o-audio-preview' */) {
             const stream = streamText({
                 ...hander_params,
                 onChunk: middleware.onChunk as (data: any) => void,

@@ -22,7 +22,8 @@ function markdownToTelegraphNodes(markdown: string): Node[] {
     let codeMatch: RegExpMatchArray | null;
 
     for (let line of lines) {
-        if (codeMatch = (line.trim().match(/^```(.*)/))) {
+        const codeRegex = /^```(.*)/;
+        if ((codeMatch = codeRegex.exec(line.trim()))) {
             if (inCodeBlock === 1 && codeMatch[1] === '') {
                 nodes.push({
                     tag: 'pre',
@@ -63,7 +64,8 @@ function markdownToTelegraphNodes(markdown: string): Node[] {
 
         // 标题
         if (_line.startsWith('#')) {
-            const match = /^#+/.exec(_line);
+            const titleRegex = /^#+/;
+            const match = titleRegex.exec(_line);
             let level = match ? match[0].length : 0;
             level = level <= 2 ? 3 : 4; // telegraph 仅支持h3 h4
             const text = line.replace(/^#+\s*/, '');
@@ -203,17 +205,11 @@ function processInlineStyles(text: string): (string | { tag: string; children: a
 
 function processInlineElements(text: string) {
     const children = [];
-
-    // 处理行内代码块
     const codeRegex = /(^|[^\\])`(.*?[^\\]?)`/g;
-    let codeMatch = null;
+    let codeMatch: RegExpExecArray | null;
     let lastIndex = 0;
 
-    while (true) {
-        codeMatch = codeRegex.exec(text);
-        if (codeMatch === null)
-            break;
-
+    while ((codeMatch = codeRegex.exec(text)) !== null) {
         if (codeMatch.index + codeMatch[1].length > lastIndex) {
             children.push(...processInlineElementsHelper(text.slice(lastIndex, codeMatch.index + codeMatch[1].length)));
         }

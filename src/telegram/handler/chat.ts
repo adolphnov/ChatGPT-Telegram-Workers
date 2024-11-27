@@ -1,5 +1,6 @@
 /* eslint-disable unused-imports/no-unused-vars */
 import type { FilePart, TextPart, ToolResultPart } from 'ai';
+import type { ReadableStream as WebReadableStream } from 'node:stream/web';
 import type * as Telegram from 'telegram-bot-api-types';
 import type { ChatStreamTextHandler, HistoryModifier, ImageResult, LLMChatRequestParams } from '../../agent/types';
 import type { WorkerContext } from '../../config/context';
@@ -15,6 +16,7 @@ import { clearLog, getLog, logSingleton } from '../../log/logDecortor';
 import { log } from '../../log/logger';
 import { sendToolResult } from '../../tools';
 import { imageToBase64String } from '../../utils/image';
+import { OggToMp3Converter } from '../../utils/others/audio';
 import { createTelegramBotAPI } from '../api';
 import { escape } from '../utils/md2tgmd';
 import { MessageSender, sendAction, TelegraphSender } from '../utils/send';
@@ -139,10 +141,19 @@ export class ChatHandler implements MessageHandler<WorkerContext> {
                         });
                     }
                 } else if (type === 'audio' || type === 'voice') {
+                    const isChat = context.USER_CONFIG.AUDIO_HANDLE_TYPE === 'chat';
+                    let audioData = urls[0];
+                    if (isChat) {
+                        const response = await fetch(urls[0]);
+                        if (!response.body) {
+                            throw new Error('Failed to fetch audio data');
+                        }
+                        audioData = await new OggToMp3Converter(response.body as WebReadableStream, 'base64').convert() as string;
+                    }
                     params.content.push({
                         type: 'file',
-                        data: urls[0],
-                        mimeType: 'audio/ogg',
+                        data: audioData,
+                        mimeType: 'audio/mpeg',
                     });
                 }
             }
@@ -288,12 +299,13 @@ function workflowHandlers(type: string): WorkflowHandler {
         case 'image:text':
         case 'photo:text':
         case 'text:chat':
+        case 'chat:text':
+        case 'chat:audio':
             return handleText;
         case 'text:image':
             return handleTextToImage;
         case 'audio:text':
         case 'audio:audio':
-        case 'audio:chat':
         case 'trans:text':
         case 'trans:audio':
             return handleAudio;

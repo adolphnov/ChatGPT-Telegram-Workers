@@ -62,7 +62,7 @@ export default defineConfig({
     build: {
         target: 'es2022',
         rollupOptions: {
-            external: ['ws', '@ai-sdk/google-vertex', 'node:buffer'],
+            external: ['ws', '@ai-sdk/google-vertex', 'node:buffer', 'node:stream', 'base64-stream', 'fluent-ffmpeg', 'node-cron'],
         },
         lib: {
             entry: path.resolve(__dirname, entry),

@@ -1,18 +1,14 @@
 import type * as Telegram from 'telegram-bot-api-types';
-import type { WorkerContext } from '../../config/context';
-import type { ChosenInlineQueryHandler, InlineQueryHandler, MessageHandler } from './types';
-import { CallbackQueryContext, ChosenInlineWorkerContext, InlineQueryContext, WorkerContextBase } from '../../config/context';
+import type { MessageHandler } from './types';
+import { WorkerContextBase } from '../../config/context';
 import { log } from '../../log/logger';
+import { handleCallbackQuery, handleChosenInline, handleInlineQuery } from '../query';
 import { ChatHandler } from './chat';
 import { GroupMention } from './group';
 import {
-    AnswerInlineQuery,
     CheckForwarding,
-    CheckInlineQueryWhiteList,
     CommandHandler,
     EnvChecker,
-    HandlerCallbackQuery,
-    HandlerInlineQuery,
     InitUserConfig,
     IntelligentModelProcess,
     MessageFilter,
@@ -102,78 +98,7 @@ async function handleMessage(token: string, message: Telegram.Message, isForward
     return null;
 }
 
-async function handleCallbackQuery(token: string, callbackQuery: Telegram.CallbackQuery) {
-    try {
-        log.info('handleCallbackQuery');
-        if (!callbackQuery?.message || !callbackQuery?.data) {
-            throw new Error('Not support callback query type');
-        }
-
-        const workContext = new WorkerContextBase(token, callbackQuery.message);
-
-        const handlers: MessageHandler<any>[] = [
-            new EnvChecker(),
-            new WhiteListFilter(),
-            new InitUserConfig(),
-        ];
-        for (const handler of handlers) {
-            const result = await handler.handle(callbackQuery.message, workContext);
-            if (result instanceof Response) {
-                return result;
-            }
-        }
-
-        const callbackQueryContext = new CallbackQueryContext(callbackQuery, workContext as WorkerContext);
-        const result = await new HandlerCallbackQuery().handle(callbackQuery.message, callbackQueryContext);
-        if (result instanceof Response) {
-            return result;
-        }
-    } catch (e) {
-        return catchError(e as Error);
-    }
-    return null;
-}
-
-async function handleInlineQuery(token: string, inlineQuery: Telegram.InlineQuery) {
-    log.info(`handleInlineQuery`, inlineQuery);
-    try {
-        const context = new InlineQueryContext(token, inlineQuery);
-        const handlers: InlineQueryHandler<InlineQueryContext>[] = [
-            new CheckInlineQueryWhiteList(),
-            new HandlerInlineQuery(),
-        ];
-        for (const handler of handlers) {
-            const result = await handler.handle(inlineQuery, context);
-            if (result instanceof Response) {
-                return result;
-            }
-        }
-    } catch (error) {
-        return catchError(error as Error);
-    }
-    return null;
-}
-
-async function handleChosenInline(token: string, chosenInlineQuery: Telegram.ChosenInlineResult) {
-    log.info(`handleChosenInlineQuery`, chosenInlineQuery);
-    try {
-        const context = await ChosenInlineWorkerContext.from(token, chosenInlineQuery);
-        const handlers: ChosenInlineQueryHandler<ChosenInlineWorkerContext>[] = [
-            new AnswerInlineQuery(),
-        ];
-        for (const handler of handlers) {
-            const result = await handler.handle(chosenInlineQuery, context);
-            if (result instanceof Response) {
-                return result;
-            }
-        }
-    } catch (error) {
-        return catchError(error as Error);
-    }
-    return null;
-}
-
-function catchError(e: Error) {
+export function catchError(e: Error) {
     console.error(e.message);
     return new Response(JSON.stringify({
         message: e.message,

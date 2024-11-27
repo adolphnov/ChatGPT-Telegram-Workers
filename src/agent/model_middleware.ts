@@ -25,6 +25,7 @@ export function AIMiddleware({ config, tools, activeTools, onStream, toolChoice,
             // await warpModel(model, config, activeTools, (params.mode as any).toolChoice, chatModel);
             recordModelLog(config, model, activeTools, (params.mode as any).toolChoice);
             const result = await doGenerate();
+            log.debug(`doGenerate result: ${JSON.stringify(result)}`);
             return result;
         },
 
@@ -54,6 +55,7 @@ export function AIMiddleware({ config, tools, activeTools, onStream, toolChoice,
 
         onChunk: (data: any) => {
             const { chunk } = data;
+            log.debug(`chunk: ${JSON.stringify(chunk)}`);
             if (chunk.type === 'tool-call' && !sendToolCall) {
                 onStream?.send(`${messageReferencer.join('')}...\n` + `tool call will start: ${chunk.toolName}`);
                 sendToolCall = true;
