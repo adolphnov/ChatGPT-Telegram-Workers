@@ -1,28 +1,33 @@
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
-import { experimental_createMCPClient as createMCPClient, stepCountIs, streamText } from 'ai';
-import { Experimental_StdioMCPTransport as MCPStdioTransport } from 'ai/mcp-stdio';
+import { Client } from '@modelcontextprotocol/sdk/client/index.js';
+import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
+import { stepCountIs, streamText } from 'ai';
 
 let mcpClient;
 
 try {
-    // mcpClient = await createMCPClient({
-    //     name: 'amap',
-    //     transport: {
-    //         type: 'sse',
-    //         url: `https://mcp.amap.com/sse?key=${process.env.AMAP_KEY}`,
-    //     },
-    // });
-
-    const transport = new MCPStdioTransport({
+    const transport = new StdioClientTransport({
         command: 'npx',
         args: ['-y', '@amap/amap-maps-mcp-server'],
         env: {
             AMAP_MAPS_API_KEY: process.env.AMAP_MAPS_API_KEY!,
         },
     });
-    mcpClient = await createMCPClient({
+    mcpClient = new Client({
         name: 'amap',
-        transport,
+        version: '1.0.0',
+    }, {
+        capabilities: {},
+    });
+    await mcpClient.connect(transport);
+
+    const tools = await mcpClient.listTools();
+    const toolsMap: Record<string, any> = {};
+    tools.tools?.forEach((tool: any) => {
+        toolsMap[tool.name] = {
+            description: tool.description,
+            parameters: tool.inputSchema,
+        };
     });
 
     const { textStream } = streamText({
@@ -32,7 +37,7 @@ try {
             name: 'oailike',
         }).languageModel('gemini-2.5-pro'),
         stopWhen: stepCountIs(10),
-        tools: await mcpClient.tools(),
+        tools: toolsMap,
         prompt: '上海虹桥站到东方明珠最快路径 开车前往 我不知道经纬度 请使用工具后告诉我最快捷路线',
     });
 

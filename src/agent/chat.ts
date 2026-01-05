@@ -1,5 +1,5 @@
 /* eslint-disable unused-imports/no-unused-vars */
-import type { CoreMessage } from 'ai';
+import type { ModelMessage } from 'ai';
 import type { WorkerContext } from '../config/context';
 import type { AgentUserConfig } from '../config/env';
 import type { ChatAgent, ChatStreamTextHandler, HistoryItem, HistoryModifier, LLMChatParams, LLMChatRequestParams, ResponseMessage } from './types';
@@ -111,7 +111,7 @@ export async function requestCompletionsFromLLM(params: LLMChatRequestParams | n
     return answer;
 }
 
-export async function storeHistory(history: CoreMessage[], context: WorkerContext) {
+export async function storeHistory(history: ModelMessage[], context: WorkerContext) {
     const historyKey = context.SHARE_CONTEXT.chatHistoryKey;
     const userMessage = history.findLast(h => h.role === 'user');
     if (ENV.HISTORY_IMAGE_PLACEHOLDER && Array.isArray(userMessage?.content) && userMessage.content.length > 0) {
@@ -181,7 +181,7 @@ function extractResultText(result: { messages: ResponseMessage[]; content: strin
     return lastMessage.content;
 };
 
-export function injectSystemMessage(messages: CoreMessage[], systemMessage: string | null) {
+export function injectSystemMessage(messages: ModelMessage[], systemMessage: string | null) {
     if (systemMessage) {
         // 注入{{CURRENT_TIME}}
         systemMessage = systemMessage.replace('{{CURRENT_TIME}}', new Date().toISOString());

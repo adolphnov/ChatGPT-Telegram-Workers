@@ -1,4 +1,4 @@
-import type { CoreAssistantMessage, CoreMessage, CoreToolMessage, UserModelMessage } from 'ai';
+import type { AssistantModelMessage, ModelMessage, ToolModelMessage, UserModelMessage } from 'ai';
 import type { AgentUserConfig } from '../config/env';
 import type { MessageSender } from '../telegram/utils/send';
 import type { UnionData } from '../telegram/utils/tg_utils';
@@ -12,7 +12,7 @@ export interface OpenAIFuncCallData {
         arguments: string;
     };
 };
-export type HistoryItem = CoreMessage;
+export type HistoryItem = ModelMessage;
 
 export interface HistoryModifierResult {
     history: HistoryItem[];
@@ -57,11 +57,11 @@ export type LLMChatRequestParams = UserModelMessage;
 
 export interface LLMChatParams {
     prompt?: string;
-    messages: CoreMessage[];
+    messages: ModelMessage[];
     cache?: string[];
 }
 
-export type ResponseMessage = CoreAssistantMessage | CoreToolMessage;
+export type ResponseMessage = AssistantModelMessage | ToolModelMessage;
 
 export type ChatAgentRequest = (params: LLMChatParams, context: AgentUserConfig, onStream: ChatStreamTextHandler | null) => Promise<{ messages: ResponseMessage[]; content: string }>;
 

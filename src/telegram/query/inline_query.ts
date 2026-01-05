@@ -1,4 +1,4 @@
-import type { CoreMessage } from 'ai';
+import type { ModelMessage } from 'ai';
 import type * as Telegram from 'telegram-bot-api-types';
 import type { WorkerContext } from '../../config/context';
 import type { MessageSender } from '../utils/send';
@@ -39,7 +39,7 @@ export class AnswerChatInlineQuery implements AnswerInlineQueryType {
 
         try {
             const resp = await agent.request({
-                messages: messages as CoreMessage[],
+                messages: messages as ModelMessage[],
             }, context.USER_CONFIG, isStream ? OnStream : null);
             const { content: answer } = resp;
             if (answer === '') {

@@ -1,7 +1,4 @@
 import type { MCPTransport } from '../config/types';
-import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
-import { experimental_createMCPClient as createMCPClient } from 'ai';
-import { Experimental_StdioMCPTransport as MCPStdioTransport } from 'ai/mcp-stdio';
 import { ENV } from '../config/env';
 import { log } from '../log';
 import { isCfWorker } from '../telegram/utils/tg_utils';
@@ -21,13 +18,17 @@ export async function initializeMcp() {
     }
     log.info('initializing mcp...');
 
-    {
+    try {
+        const { StreamableHTTPClientTransport } = await import('@modelcontextprotocol/sdk/client/streamableHttp.js');
+        const { StdioClientTransport } = await import('@modelcontextprotocol/sdk/client/stdio.js');
+        const { Client } = await import('@modelcontextprotocol/sdk/client/index.js');
+
         const mcpConfig = Object.entries(ENV.MCP_CONFIG);
         const toolPromises = mcpConfig.map(async ([name, transport]: [string, MCPTransport]) => {
-            let mcpTransport: MCPTransport | MCPStdioTransport | StreamableHTTPClientTransport;
+            let mcpTransport: any;
             switch (transport.type) {
                 case 'stdio':
-                    mcpTransport = new MCPStdioTransport({
+                    mcpTransport = new StdioClientTransport({
                         command: transport.command,
                         args: transport.args,
                         env: transport.env,
@@ -38,23 +39,35 @@ export async function initializeMcp() {
                     mcpTransport = new StreamableHTTPClientTransport(new URL(transport.url));
                     break;
                 default:
-                    mcpTransport = transport;
+                    throw new Error(`Unsupported transport type: ${(transport as any).type}`);
             }
 
-            const mcpClient = await createMCPClient({
+            const mcpClient = new Client({
                 name,
-                transport: mcpTransport as any,
+                version: '1.0.0',
+            }, {
+                capabilities: {},
             });
+            await mcpClient.connect(mcpTransport);
             mcpClients.push(mcpClient);
-            const tools = await mcpClient.tools();
+            const tools = await mcpClient.listTools();
+            const toolsMap: Record<string, any> = {};
+            tools.tools?.forEach((tool: any) => {
+                toolsMap[tool.name] = {
+                    description: tool.description,
+                    inputSchema: tool.inputSchema,
+                };
+            });
             Object.assign(mcpTools, {
-                [name]: tools,
+                [name]: toolsMap,
             });
         });
 
         await Promise.all(toolPromises);
         mcpInitialized = true;
         log.debug('MCP:', JSON.stringify(Object.entries(mcpTools).map(([name, tools]) => ({ [name]: Object.entries(tools).map(([tname, t]) => ({ name: tname, description: t.description })) })), null, 1));
+    } catch (error) {
+        log.error('Failed to initialize MCP:', error);
     }
     log.info('initialize mcp done');
     log.info(`mcpTools: ${Object.keys(mcpTools)}`);

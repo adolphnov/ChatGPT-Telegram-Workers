@@ -71,6 +71,12 @@ export default defineConfig({
                 'node:fs',
                 'node:path',
                 'node:fs/promises',
+                'node:stream',
+                'node:process',
+                'node:util',
+                'node:events',
+                'node:url',
+                '@modelcontextprotocol/sdk',
             ],
         },
         lib: {
